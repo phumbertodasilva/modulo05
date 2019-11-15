@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import index from 'styled-components/dist/styled-components-macro.esm';
 import api from '../../services/api';
 
 import Container from '../../components/Container';
-import { Loading, Owner, IssueList, IssueFilter } from './styles';
+import { Loading, Owner, IssueList, IssueFilter, PageAction } from './styles';
 
 export default class Repository extends Component {
   static propTypes = {
@@ -57,6 +56,14 @@ export default class Repository extends Component {
     this.loadIssues();
   };
 
+  handlePage = async action => {
+    const { page } = this.state;
+    await this.setState({
+      page: action === 'back' ? page - 1 : page + 1,
+    });
+    this.loadIssues();
+  };
+
   loadIssues = async () => {
     const { match } = this.props;
     const { filters, filterIndex, page } = this.state;
@@ -75,7 +82,14 @@ export default class Repository extends Component {
   };
 
   render() {
-    const { repository, issues, loading, filters } = this.state;
+    const {
+      repository,
+      issues,
+      loading,
+      filters,
+      filterIndex,
+      page,
+    } = this.state;
 
     if (loading) {
       return <Loading>Carregando</Loading>;
@@ -117,6 +131,19 @@ export default class Repository extends Component {
             </li>
           ))}
         </IssueList>
+        <PageAction>
+          <button
+            type="button"
+            disabled={page < 2}
+            onClick={() => this.handlePage('back')}
+          >
+            Anterior
+          </button>
+          <span>Página {page}</span>
+          <button type="button" onClick={() => this.handlePage('next')}>
+            Próximo
+          </button>
+        </PageAction>
       </Container>
     );
   }
